@@ -10,7 +10,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.decomposition import LatentDirichletAllocation
 
 
-# Load the persona data
+# || Load the persona data || #
 def load_persona_data():
     with gzip.open('data/social_chemistry_posts.gzip', 'rb') as f:
         data = pd.read_pickle(f)
@@ -36,6 +36,7 @@ filtered_posts['fulltext'] = filtered_posts['fulltext'].str.lower() # Make posts
 print(filtered_posts['fulltext'])
 
 
+# || Visualise || #
 # Create a count vectorizer
 vectorizer = CountVectorizer()
 X = vectorizer.fit_transform(filtered_posts['fulltext'])

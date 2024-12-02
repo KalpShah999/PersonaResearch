@@ -11,6 +11,8 @@ import numpy as np
 import pandas as pd
 import pyLDAvis
 import matplotlib.pyplot as plt
+import seaborn as sns
+
 
 # Import the necessary libraries
 import nltk
@@ -49,13 +51,15 @@ filtered_posts = data[data['fulltext'].str.contains(r'\b(' +'|'.join(self_disclo
 filtered_posts['fulltext'] = filtered_posts['fulltext'].str.lower() # Make posts all lower case 
 print(filtered_posts['fulltext'])
 
+test_sample = filtered_posts.sample(n=10000, random_state=42)
 
+print("Punkt Tokenizer")
 # || Tokenize the text || #
 # Create a Punkt tokenizer
 tokenizer = PunktSentenceTokenizer()
 
 tokenized_sentences = []
-for post in filtered_posts['fulltext']:
+for post in test_sample['fulltext']:
     tokenized_sentences.extend(tokenizer.tokenize(post))
 
 # print("Tokenized Sentences:")
@@ -86,7 +90,7 @@ print("Clustering Sentences with kNN")
 
 #Number of neighbors
 n_neighbors = 3
-knn = NearestNeighbors(n_neighbors=n_neighbors, metric='cosine')
+knn = NearestNeighbors(n_neighbors=n_neighbors,algorithm='auto', metric='cosine')
 knn.fit(sentence_embeddings)
 
 distances, indices = knn.kneighbors(sentence_embeddings)
@@ -99,27 +103,33 @@ reduced_embeddings = pca.fit_transform(sentence_embeddings)
 
 # Plot the kmeans clusters
 plt.figure(figsize=(10, 10))
-for cluster in range(cluster_count):
-    cluster_points = reduced_embeddings[np.array(labels) == cluster]
-    plt.scatter(cluster_points[:, 0], cluster_points[:, 1], label=f"Cluster {cluster}")
-plt.legend()
+sns.scatterplot(x=reduced_embeddings[:, 0], y=reduced_embeddings[:, 1], hue=labels, palette='viridis')
 plt.title("Clustered Sentences")
 plt.xlabel("PCA Dimension 1")
 plt.ylabel("PCA Dimension 2")
-
-# Plot the kNN clusters
-plt.figure(figsize=(10, 10))
-for i, embedding in enumerate(reduced_embeddings):
-    plt.scatter(embedding[0], embedding[1])
-    for neighbor_index in indices[i]:
-        neighbor_embedding = reduced_embeddings[neighbor_index]
-        plt.plot(
-            [embedding[0], neighbor_embedding[0]],
-            [embedding[1], neighbor_embedding[1]],
-            'k--', alpha=0.5
-        )
-
-plt.title("kNN Relationships (PCA)")
-plt.xlabel("PCA Dimension 1")
-plt.ylabel("PCA Dimension 2")
 plt.show()
+# plt.figure(figsize=(10, 10))
+# for cluster in range(cluster_count):
+#     cluster_points = reduced_embeddings[np.array(labels) == cluster]
+#     plt.scatter(cluster_points[:, 0], cluster_points[:, 1], label=f"Cluster {cluster}")
+# plt.legend()
+# plt.title("Clustered Sentences")
+# plt.xlabel("PCA Dimension 1")
+# plt.ylabel("PCA Dimension 2")
+
+# # Plot the kNN clusters
+# plt.figure(figsize=(10, 10))
+# for i, embedding in enumerate(reduced_embeddings):
+#     plt.scatter(embedding[0], embedding[1])
+#     for neighbor_index in indices[i]:
+#         neighbor_embedding = reduced_embeddings[neighbor_index]
+#         plt.plot(
+#             [embedding[0], neighbor_embedding[0]],
+#             [embedding[1], neighbor_embedding[1]],
+#             'k--', alpha=0.5
+#         )
+
+# plt.title("kNN Relationships (PCA)")
+# plt.xlabel("PCA Dimension 1")
+# plt.ylabel("PCA Dimension 2")
+# plt.show()

@@ -107,12 +107,13 @@ sentences_with_phrases = sentences[sentences.str.contains(r'\b(' + '|'.join(self
 # Get the text which follows the self disclosure phrases
 text_after_phrase = sentences_with_phrases.apply(
     lambda sentence: {
-        phrase: sentence[index:] 
+        phrase: sentence[index+len(phrase):].strip() 
         for phrase, index in find_phrase_index(sentence, self_disclosure_phrases).items()
     }
 )
 sentences_after_phrases = text_after_phrase.apply(lambda x: list(x.values())[0])
-
+print("Sentences after phrases:")
+print(sentences_after_phrases)
 
 
 ### Unigram ###
@@ -152,13 +153,13 @@ print(after_trigram_count)
 # Get the text which follows the self disclosure phrases
 text_before_phrase = sentences_with_phrases.apply(
     lambda sentence: {
-        phrase: sentence[:index]
+        phrase: sentence[:index].strip()
         for phrase, index in find_phrase_index(sentence, self_disclosure_phrases).items()
     }
 )
 
 sentences_before_phrases = text_before_phrase.apply(lambda x: list(x.values())[0]).str.strip()
-
+print("Sentences before phrases:")
 print(sentences_before_phrases)
 
 ### Unigram ###
@@ -193,108 +194,128 @@ print(before_trigram_count)
 
 
 
-
+# Print examples of sentences divided into before, self disclosure phrase, and after
+# Print the first 10 sentences
+print('Examples of sentences divided into before, self disclosure phrase, and after:')
+for sentence in islice(sentences_with_phrases, 10):
+    for phrase, index in find_phrase_index(sentence, self_disclosure_phrases).items():
+        phrase_length = len(phrase)
+        before = sentence[:index]
+        after = sentence[index+phrase_length:]
+        print('Full sentence:', sentence)
+        print('Before:', before)
+        print('Phrase:', phrase.strip())
+        print('After:', after)
+        print()
 
 
 # || --------- Generate plots --------- || #
 
-# Plot the number of posts per author among all authors
-plt.figure()
-author_count_by_post_count.plot(kind='bar')
-plt.title('Number of posts per author with self disclosure phrases')
-plt.xlabel('Author')
-plt.ylabel('Number of posts')
+# # Plot the number of posts per author among all authors
+# plt.figure()
+# author_count_by_post_count.plot(kind='bar')
+# plt.title('Number of posts per author with self disclosure phrases')
+# plt.xlabel('Author')
+# plt.ylabel('Number of posts')
+# plt.savefig('num_post_per_author.png')
 
-# Plot the number of posts per author among authors with more than 1 post
-plt.figure()
-big_author_count_by_post_count.plot(kind='bar')
-plt.title('Number of posts per author with self disclosure phrases')
-plt.xlabel('Author')
-plt.ylabel('Number of posts')
-plt.show()
+# # Plot the number of posts per author among authors with more than 1 post
+# plt.figure()
+# big_author_count_by_post_count.plot(kind='bar')
+# plt.title('Number of posts per author with self disclosure phrases')
+# plt.xlabel('Author')
+# plt.ylabel('Number of posts')
+# plt.savefig('num_post_per_author_more_than_1.png')
 
-# Plot the number of self disclosure phrases per author
-plt.figure()
-author_count_by_phrase_count.plot(kind='bar')
-plt.title('Number of self disclosure phrases per author')
-plt.xlabel('Number of self disclosure phrases')
-plt.ylabel('Number of Authors')
-plt.show()
-
-# Sorted bar chart of number of matches per self disclosure phrase
-plt.figure()
-phrase_count_sorted = phrase_count.sort_values(ascending=False)
-phrase_count_sorted.plot(kind='bar', figsize=(10, 6))
-plt.xticks(rotation=45, ha='right')
-
-# Add the number of matches to the top of each bar
-for i, value in enumerate(phrase_count_sorted.values): 
-    plt.text(i, value + 100, str(value), ha='center', va='bottom', fontsize=9)
-
-plt.title('Number of self disclosure phrases per author', fontsize=16)
-plt.xlabel('Self disclosure phrase', fontsize=14)
-plt.ylabel('Number of matches', fontsize=14)
-plt.tight_layout()
-plt.show()
-
-# Most common phrases after self disclosure phrases (to end of sentence)
-# plot top 20 most common unigrams after self disclosure phrases
-plt.figure()
-after_word_count.head(20).plot(kind='bar', figsize=(10, 6))
-plt.xticks(rotation=45, ha='right')
-plt.title('Most common words after self disclosure phrases', fontsize=16)
-plt.xlabel('Word', fontsize=14)
-plt.ylabel('Frequency', fontsize=14)
-plt.tight_layout()
-
-# plot 20 most common digrams after self disclosure phrases
-plt.figure()
-after_bigram_count.head(20).plot(kind='bar', figsize=(10, 6))
-plt.xticks(rotation=45, ha='right')
-plt.title('Most common bigrams after self disclosure phrases', fontsize=16)
-plt.xlabel('Bigram', fontsize=14)
-plt.ylabel('Frequency', fontsize=14)
-plt.tight_layout()
-
-# plot 20 most common trigrams after self disclosure phrases
-plt.figure()
-after_trigram_count.head(20).plot(kind='bar', figsize=(10, 6))
-plt.xticks(rotation=45, ha='right')
-plt.title('Most common trigrams after self disclosure phrases', fontsize=16)
-plt.xlabel('Trigram', fontsize=14)
-plt.ylabel('Frequency', fontsize=14)
-plt.tight_layout()
-plt.show()
+# # Plot the number of self disclosure phrases per author
+# plt.figure()
+# author_count_by_phrase_count.plot(kind='bar')
+# plt.title('Number of self disclosure phrases per author')
+# plt.xlabel('Number of self disclosure phrases')
+# plt.ylabel('Number of Authors')
+# plt.savefig('num_self_disclosure_phrases_per_author.png')
 
 
-# Most common phrases before self disclosure phrases (from start of sentence)
-# plot top 20 most common unigrams before self disclosure phrases
-plt.figure()
-before_word_count.head(20).plot(kind='bar', figsize=(10, 6))
-plt.xticks(rotation=45, ha='right')
-plt.title('Most common words before self disclosure phrases', fontsize=16)
-plt.xlabel('Word', fontsize=14)
-plt.ylabel('Frequency', fontsize=14)
-plt.tight_layout()
+# # Sorted bar chart of number of matches per self disclosure phrase
+# plt.figure()
+# phrase_count_sorted = phrase_count.sort_values(ascending=False)
+# phrase_count_sorted.plot(kind='bar', figsize=(10, 6))
+# plt.xticks(rotation=45, ha='right')
 
-# plot 20 most common digrams before self disclosure phrases
-plt.figure()
-before_bigram_count.head(20).plot(kind='bar', figsize=(10, 6))
-plt.xticks(rotation=45, ha='right')
-plt.title('Most common bigrams before self disclosure phrases', fontsize=16)
-plt.xlabel('Bigram', fontsize=14)
-plt.ylabel('Frequency', fontsize=14)
-plt.tight_layout()
+# # Add the number of matches to the top of each bar
+# for i, value in enumerate(phrase_count_sorted.values): 
+#     plt.text(i, value + 100, str(value), ha='center', va='bottom', fontsize=9)
 
-# plot 20 most common trigrams before self disclosure phrases
-plt.figure()
-before_trigram_count.head(20).plot(kind='bar', figsize=(10, 6))
-plt.xticks(rotation=45, ha='right')
-plt.title('Most common trigrams before self disclosure phrases', fontsize=16)
-plt.xlabel('Trigram', fontsize=14)
-plt.ylabel('Frequency', fontsize=14)
-plt.tight_layout()
-plt.show()
+# plt.title('Matches per self disclosure phrase', fontsize=16)
+# plt.xlabel('Self disclosure phrase', fontsize=14)
+# plt.ylabel('Number of matches', fontsize=14)
+# plt.tight_layout()
+# plt.savefig('matches_per_self_disclosure_phrase.png')
+
+
+# # Most common phrases after self disclosure phrases (to end of sentence)
+# # plot top 20 most common unigrams after self disclosure phrases
+# plt.figure()
+# after_word_count.head(20).plot(kind='bar', figsize=(10, 6))
+# plt.xticks(rotation=45, ha='right')
+# plt.title('Most common words after self disclosure phrases', fontsize=16)
+# plt.xlabel('Word', fontsize=14)
+# plt.ylabel('Frequency', fontsize=14)
+# plt.tight_layout()
+# plt.savefig('common_word_after.png')
+
+
+# # plot 20 most common digrams after self disclosure phrases
+# plt.figure()
+# after_bigram_count.head(20).plot(kind='bar', figsize=(10, 6))
+# plt.xticks(rotation=45, ha='right')
+# plt.title('Most common bigrams after self disclosure phrases', fontsize=16)
+# plt.xlabel('Bigram', fontsize=14)
+# plt.ylabel('Frequency', fontsize=14)
+# plt.tight_layout()
+# plt.savefig('common_two_after.png')
+
+# # plot 20 most common trigrams after self disclosure phrases
+# plt.figure()
+# after_trigram_count.head(20).plot(kind='bar', figsize=(10, 6))
+# plt.xticks(rotation=45, ha='right')
+# plt.title('Most common trigrams after self disclosure phrases', fontsize=16)
+# plt.xlabel('Trigram', fontsize=14)
+# plt.ylabel('Frequency', fontsize=14)
+# plt.tight_layout()
+# plt.savefig('common_three_after.png')
+
+
+# # Most common phrases before self disclosure phrases (from start of sentence)
+# # plot top 20 most common unigrams before self disclosure phrases
+# plt.figure()
+# before_word_count.head(20).plot(kind='bar', figsize=(10, 6))
+# plt.xticks(rotation=45, ha='right')
+# plt.title('Most common words before self disclosure phrases', fontsize=16)
+# plt.xlabel('Word', fontsize=14)
+# plt.ylabel('Frequency', fontsize=14)
+# plt.tight_layout()
+# plt.savefig('common_word_before.png')
+
+# # plot 20 most common digrams before self disclosure phrases
+# plt.figure()
+# before_bigram_count.head(20).plot(kind='bar', figsize=(10, 6))
+# plt.xticks(rotation=45, ha='right')
+# plt.title('Most common bigrams before self disclosure phrases', fontsize=16)
+# plt.xlabel('Bigram', fontsize=14)
+# plt.ylabel('Frequency', fontsize=14)
+# plt.tight_layout()
+# plt.savefig('common_two_before.png')
+
+# # plot 20 most common trigrams before self disclosure phrases
+# plt.figure()
+# before_trigram_count.head(20).plot(kind='bar', figsize=(10, 6))
+# plt.xticks(rotation=45, ha='right')
+# plt.title('Most common trigrams before self disclosure phrases', fontsize=16)
+# plt.xlabel('Trigram', fontsize=14)
+# plt.ylabel('Frequency', fontsize=14)
+# plt.tight_layout()
+# plt.savefig('common_three_before.png')
 
 
 

@@ -27,6 +27,8 @@ print(data)
 self_disclosure_phrases = pd.read_csv('data/self_disclosure_phrases.txt', header=None, names=['phrase'])
 self_disclosure_phrases = self_disclosure_phrases['phrase'].tolist()
 print(self_disclosure_phrases)
+print('Number of posts:', len(data))
+print('Number of authors:', len(data['author_fullname'].unique()))
 
 # Search for self disclosure phrases in the posts
 filtered_posts = data[data['fulltext'].str.contains(r'\b(' +'|'.join(self_disclosure_phrases)+ r')\b', case=False, na=False)]
@@ -50,6 +52,7 @@ authors_grouped_by_post_count = author_post_count.groupby(author_post_count)
 
 # Count the number of authors with each post count
 author_count_by_post_count = authors_grouped_by_post_count.size()
+print(author_count_by_post_count)
 
 # Filter authors who have more than 1 post
 authors_with_multiple_posts = author_post_count[author_post_count > 1]
@@ -75,6 +78,7 @@ authors_grouped_by_phrase_count = author_phrase_count.groupby(author_phrase_coun
 
 # Count the number of authors with each phrase count
 author_count_by_phrase_count = authors_grouped_by_phrase_count.size()
+print(author_count_by_phrase_count)
 
 
 # Calculate the most common self disclosure phrases

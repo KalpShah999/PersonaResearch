@@ -8,7 +8,17 @@ import pyLDAvis
 
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.decomposition import LatentDirichletAllocation
+import re
 
+# Function to extract sentences containing self-disclosure phrases
+def extract_relevant_sentences(post, phrases):
+    # Split the post into sentences using punctuation as delimiters
+    sentences = re.split(r'(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\\.|\\?|\\!)\\s', post)
+    # Check each sentence for the self-disclosure phrases
+    for sentence in sentences:
+        if re.search(r'\\b(' + '|'.join(phrases) + r')\\b', sentence, re.IGNORECASE):
+            return sentence.strip()
+    return None  # Return None if no phrase is found
 
 # || Load the persona data || #
 def load_persona_data():
@@ -38,7 +48,11 @@ print(filtered_posts['fulltext'])
 
 # || Visualise || #
 # Create a count vectorizer
-vectorizer = CountVectorizer()
+vectorizer = CountVectorizer(
+    stop_words='english',  # Remove common stopwords
+    lowercase=True,       # Ensure case consistency
+    token_pattern=r'\b[a-zA-Z]{3,}\b'  # Include only words of length >= 3
+)
 X = vectorizer.fit_transform(filtered_posts['fulltext'])
 
 # Extract the vocabulary and term frequencies

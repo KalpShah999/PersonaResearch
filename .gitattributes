@@ -1,1 +1,4 @@
 data/regex/labeled_data_short.json filter=lfs diff=lfs merge=lfs -text
+data/social_comments_filtered.csv filter=lfs diff=lfs merge=lfs -text
+data/post_level_model/training_data.csv filter=lfs diff=lfs merge=lfs -text
+data/post_level_model/training_data.pkl filter=lfs diff=lfs merge=lfs -text

@@ -1,3 +1,11 @@
+"""Coreference resolution analysis for text using Stanza NLP.
+
+This module performs coreference resolution to identify pronouns and their
+antecedents in text, calculating resolution ratios for sentences. It uses
+the Stanza NLP library for coreference chain extraction and NLTK for 
+part-of-speech tagging.
+"""
+
 import stanza
 import nltk
 import pandas as pd
@@ -11,12 +19,43 @@ stanza.download('en')
 
 
 class degree:
+    """Store the degree of resolved and unresolved references in a sentence.
+    
+    Attributes
+    ----------
+    degree_of_resolve : int
+        The number of resolved coreferences in a sentence.
+    degree_of_unresolve : int
+        The number of unresolved coreferences in a sentence.
+    """
+    
     def __init__(self, degree_of_resolve, degree_of_unresolve):
+        """Initialize the degree object.
+        
+        Parameters
+        ----------
+        degree_of_resolve : int
+            The number of resolved coreferences.
+        degree_of_unresolve : int
+            The number of unresolved coreferences.
+        """
         self.degree_of_resolve = degree_of_resolve
         self.degree_of_unresolve = degree_of_unresolve
 
-# Function to convert NLTK POS tags to WordNet POS tags
+
 def get_wordnet_pos(tag):
+    """Convert NLTK POS tags to WordNet POS tags.
+    
+    Parameters
+    ----------
+    tag : str
+        An NLTK part-of-speech tag.
+    
+    Returns
+    -------
+    str
+        The corresponding WordNet POS tag (ADJ, VERB, NOUN, or ADV).
+    """
     if tag.startswith('J'):
         return wordnet.ADJ
     elif tag.startswith('V'):
@@ -81,7 +120,20 @@ nlp = stanza.Pipeline(lang='en', processors='tokenize,ner,pos,coref')
 
 
 def get_coref_chains(doc):
-    # Print coreference chains with unique identifiers
+    """Extract coreference chains from a Stanza document.
+    
+    Parameters
+    ----------
+    doc : stanza.Document
+        A processed Stanza document containing coreference information.
+    
+    Returns
+    -------
+    tuple
+        A tuple of (cluster_ids, cluster_mentions) where cluster_ids is a list
+        of unique identifiers and cluster_mentions is a list of mention objects.
+        Returns (None, None) if no coreference chains are found.
+    """
     if doc.coref:
         cluster_ids = []
         cluster_mentions = []
@@ -126,7 +178,15 @@ def get_coref_chains(doc):
 
     
 def print_coref_info(cluster_id, mentions):
-    # Print the coreference chain
+    """Print coreference chain information.
+    
+    Parameters
+    ----------
+    cluster_id : list
+        List of cluster identifiers.
+    mentions : list
+        List of mention objects corresponding to each cluster.
+    """
     for cluster_id, mentions in zip(cluster_id, mentions):
         print(f"{cluster_id}:")
         for mention in mentions:
@@ -135,13 +195,39 @@ def print_coref_info(cluster_id, mentions):
             print(f"  Mention: {mention_text}, Start: {start}, End: {end}, Sentence: {mention.sentence}")
 
 def resolve_ratio(degree_of_resolve, degree_of_unresolve):
+    """Calculate the resolution ratio for a sentence.
+    
+    Parameters
+    ----------
+    degree_of_resolve : int
+        The number of resolved coreferences.
+    degree_of_unresolve : int
+        The number of unresolved coreferences.
+    
+    Returns
+    -------
+    float
+        The resolution ratio (1.0 if all references are resolved).
+    """
     if degree_of_unresolve == 0:
         return 1
     else:
         return degree_of_resolve / (degree_of_resolve + degree_of_unresolve)
 
+
 def calculate_resolve_ratio(degree_dict):
-    # Calculate the resolve ratio
+    """Calculate resolution ratios for all sentences in a dictionary.
+    
+    Parameters
+    ----------
+    degree_dict : dict
+        Dictionary mapping sentences to degree objects.
+    
+    Returns
+    -------
+    dict
+        Dictionary mapping sentences to their resolution ratios.
+    """
     ratio_dict = {}
     for key, value in degree_dict.items():
         ratio = resolve_ratio(value.degree_of_resolve, value.degree_of_unresolve)

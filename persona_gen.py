@@ -1,3 +1,10 @@
+"""Analyze self-disclosure phrases in Reddit posts.
+
+This module performs comprehensive analysis of self-disclosure phrases in 
+Reddit posts, including frequency analysis, context extraction (words before
+and after phrases), n-gram analysis, and author statistics.
+"""
+
 import gzip
 import pickle
 import pandas as pd
@@ -8,8 +15,14 @@ import re
 from itertools import islice
 
 
-# Load the persona data
 def load_persona_data():
+    """Load persona data from gzip-compressed pickle file.
+    
+    Returns
+    -------
+    pandas.DataFrame
+        DataFrame containing Reddit post data from the Social Chemistry dataset.
+    """
     with gzip.open('data/social_chemistry_posts.gzip', 'rb') as f:
         data = pd.read_pickle(f)
     return data
@@ -94,9 +107,21 @@ for phrase in self_disclosure_phrases:
 
 
 
-# Find information that comes after self disclosure phrases
 def find_phrase_index(sentence, phrases):
-    # For each self-disclosure phrase, find its index in the sentence
+    """Find the starting index of each self-disclosure phrase in a sentence.
+    
+    Parameters
+    ----------
+    sentence : str
+        The sentence to search.
+    phrases : list
+        List of self-disclosure phrases to search for.
+    
+    Returns
+    -------
+    dict
+        Dictionary mapping each found phrase to its starting index in the sentence.
+    """
     indices = {}
     for phrase in phrases:
         match = re.search(r'\b' + re.escape(phrase) + r'\b', sentence, flags=re.IGNORECASE)

@@ -1,3 +1,9 @@
+"""Load and process Reddit posts from the Social Chemistry dataset.
+
+This module provides utilities to load Reddit posts containing self-disclosure
+phrases, tokenize them into sentences, and pair sentences with author information.
+"""
+
 import pandas as pd
 import gzip
 import nltk
@@ -6,6 +12,13 @@ from nltk.tokenize import TreebankWordTokenizer
 
 
 def load_reddit():
+    """Load Reddit posts containing self-disclosure phrases.
+    
+    Returns
+    -------
+    list
+        List of tokenized sentences that contain self-disclosure phrases.
+    """
     # || Load the persona data || #
     def load_persona_data():
         with gzip.open('data/social_chemistry_posts.gzip', 'rb') as f:
@@ -76,6 +89,14 @@ def load_reddit():
 
 
 def get_posts_with_authors():
+    """Load Reddit posts with author information and self-disclosure phrases.
+    
+    Returns
+    -------
+    list
+        List of (author, sentence) tuples where sentences contain 
+        self-disclosure phrases.
+    """
     # || Load the persona data || #
     def load_persona_data():
         with gzip.open('data/social_chemistry_posts.gzip', 'rb') as f:
@@ -115,6 +136,14 @@ def get_posts_with_authors():
     return author_sentence_pairs
 
 def load_labels():
+    """Load labeled comment data from CSV file.
+    
+    Returns
+    -------
+    tuple
+        A tuple of (data, author_sentence_pairs) where data is the full
+        DataFrame and author_sentence_pairs is a list of (author, sentence) tuples.
+    """
     tokenizer = PunktSentenceTokenizer()
 
 

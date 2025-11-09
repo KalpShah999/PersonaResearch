@@ -1,8 +1,13 @@
+"""Tokenize and cluster Reddit posts using SBERT embeddings.
 
-# Plan: 
-# Use NLTK Punkt Tokenizer to tokenize the text
-# Use SBERT to generate sentence embeddings and then start clustering 
-# Cluster with kNN first 
+This module tokenizes Reddit posts containing self-disclosure phrases, generates
+sentence embeddings using Sentence-BERT (SBERT), and performs various clustering
+algorithms (K-Means, DBSCAN, Agglomerative, Spectral) to group similar sentences.
+It also provides visualization of clusters using PCA and t-SNE.
+
+The clustering helps identify common themes and patterns in self-disclosure
+statements across Reddit posts.
+"""
 
 import gzip
 import time
@@ -35,8 +40,19 @@ from sklearn.cluster import SpectralClustering
 nltk.download('punkt')
 nltk.download('averaged_perceptron_tagger_eng')
 
-# Function to convert NLTK POS tags to WordNet POS tags
 def get_wordnet_pos(tag):
+    """Convert NLTK POS tags to WordNet POS tags.
+    
+    Parameters
+    ----------
+    tag : str
+        An NLTK part-of-speech tag.
+    
+    Returns
+    -------
+    str
+        The corresponding WordNet POS tag (ADJ, VERB, NOUN, or ADV).
+    """
     if tag.startswith('J'):
         return wordnet.ADJ
     elif tag.startswith('V'):
@@ -48,8 +64,15 @@ def get_wordnet_pos(tag):
     else:
         return wordnet.NOUN
 
-# || Load the persona data || #
+
 def load_persona_data():
+    """Load persona data from gzip-compressed pickle file.
+    
+    Returns
+    -------
+    pandas.DataFrame
+        DataFrame containing Reddit post data from the Social Chemistry dataset.
+    """
     with gzip.open('data/social_chemistry_posts.gzip', 'rb') as f:
         data = pd.read_pickle(f)
     return data

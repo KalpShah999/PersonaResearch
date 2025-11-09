@@ -1,4 +1,10 @@
-# LDA visualization 
+"""LDA topic modeling and visualization for Reddit posts.
+
+This module performs Latent Dirichlet Allocation (LDA) topic modeling on Reddit
+posts containing self-disclosure phrases. It creates interactive visualizations
+of discovered topics using pyLDAvis.
+"""
+
 import gzip
 import time
 import pickle
@@ -10,8 +16,23 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.decomposition import LatentDirichletAllocation
 import re
 
-# Function to extract sentences containing self-disclosure phrases
+
 def extract_relevant_sentences(post, phrases):
+    """Extract sentences from a post that contain self-disclosure phrases.
+    
+    Parameters
+    ----------
+    post : str
+        The text of a post to search.
+    phrases : list
+        List of self-disclosure phrases to search for.
+    
+    Returns
+    -------
+    str or None
+        The first sentence containing a self-disclosure phrase, or None if
+        no matching sentence is found.
+    """
     # Split the post into sentences using punctuation as delimiters
     sentences = re.split(r'(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\\.|\\?|\\!)\\s', post)
     # Check each sentence for the self-disclosure phrases
@@ -20,8 +41,15 @@ def extract_relevant_sentences(post, phrases):
             return sentence.strip()
     return None  # Return None if no phrase is found
 
-# || Load the persona data || #
+
 def load_persona_data():
+    """Load persona data from a gzip-compressed pickle file.
+    
+    Returns
+    -------
+    pandas.DataFrame
+        DataFrame containing Reddit post data from the Social Chemistry dataset.
+    """
     with gzip.open('data/social_chemistry_posts.gzip', 'rb') as f:
         data = pd.read_pickle(f)
     return data

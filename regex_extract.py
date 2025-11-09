@@ -1,3 +1,18 @@
+"""Extract persona information from Reddit posts using regex patterns.
+
+This module uses regular expression patterns to extract demographic information,
+experiences, attitudes, and relationships from Reddit posts. The extracted
+information is categorized, cleaned for overlaps, and saved to files for
+further analysis. It also creates embeddings for categorical features.
+
+Pattern Categories
+------------------
+- Demographics: identity statements, age, gender
+- Experiences: hobbies, possessions, work/education
+- Attitudes: beliefs, opinions, preferences
+- Relationships: family and social connections
+"""
+
 import load_reddit
 import load_json
 import re
@@ -112,13 +127,35 @@ relationship_pattern = re.compile(
 )
 
 def write_to_file(data, filename):
+    """Write data to a file, creating parent directories if needed.
+    
+    Parameters
+    ----------
+    data : list
+        List of items to write to the file.
+    filename : str
+        Path to the output file.
+    """
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     
     with open(filename, "w", encoding='utf-8') as f:
         for item in data:
             f.write(str(item) + "\n")
 
+
 def separate_lists(l):
+    """Separate a list of (text_list, author) tuples into individual items.
+    
+    Parameters
+    ----------
+    l : list
+        List of tuples where each tuple contains (list_of_texts, author).
+    
+    Returns
+    -------
+    list
+        List of (text, author) tuples where each text is separated.
+    """
     new_list = []
     
     for text, author in l:
@@ -129,15 +166,44 @@ def separate_lists(l):
     
     return new_list
 
+
 def find_overlap(list1, list2):
-    # list1 = separate_lists(list1)
-    # list2 = separate_lists(list2)
+    """Find overlapping items between two lists.
+    
+    Parameters
+    ----------
+    list1 : list
+        First list to compare.
+    list2 : list
+        Second list to compare.
+    
+    Returns
+    -------
+    tuple
+        A tuple of (overlap_count, overlap_list) where overlap_count is the
+        number of overlapping items and overlap_list contains the items.
+    """
     overlap_list = list(set(list1) & set(list2))
     overlap = len(overlap_list)
     return overlap, overlap_list
 
+
 def check_overlaps(lists, names):
-    # Find overlap in lists
+    """Check for overlaps between multiple lists of extracted patterns.
+    
+    Parameters
+    ----------
+    lists : list
+        List of lists to check for overlaps.
+    names : list
+        Names corresponding to each list.
+    
+    Returns
+    -------
+    tuple
+        A tuple of (overlaps, overlap_list) where overlaps is a list of 
+        overlap counts and overlap_list contains the overlapping items.
+    """
     overlaps = []
     overlap_list = []
     for (i, name) in zip(range(len(lists)), names):
@@ -156,7 +222,20 @@ def check_overlaps(lists, names):
 
 flatten = lambda z: [x for y in z for x in y]
 
+
 def get_author_dist(posts):
+    """Calculate the distribution of pattern matches per author.
+    
+    Parameters
+    ----------
+    posts : list
+        List of (patterns, author) tuples.
+    
+    Returns
+    -------
+    dict
+        Dictionary mapping authors to their pattern counts.
+    """
     author_counts = {}
     for post in posts:
         author = post[1]
@@ -167,8 +246,23 @@ def get_author_dist(posts):
             author_counts[author] = count
     return author_counts
 
+
 def graph_dist(counter, title, xlabel, ylabel, filename):
-    # graph the distribution of the different patterns per author
+    """Create and save a bar chart of pattern distribution.
+    
+    Parameters
+    ----------
+    counter : dict or Counter
+        Dictionary with keys as categories and values as counts.
+    title : str
+        Title for the graph.
+    xlabel : str
+        Label for the x-axis.
+    ylabel : str
+        Label for the y-axis.
+    filename : str
+        Path where the graph image will be saved.
+    """
     plt.figure()
     plt.bar(counter.keys(), counter.values())
     plt.title(title)
@@ -177,7 +271,18 @@ def graph_dist(counter, title, xlabel, ylabel, filename):
     # save
     plt.savefig(filename)
 
+
 def main():
+    """Main function to extract and process persona information from Reddit posts.
+    
+    This function performs the following steps:
+    1. Load posts from Reddit data sources
+    2. Extract demographic, experience, attitude, and relationship patterns
+    3. Remove overlaps between categories
+    4. Save extracted data to files
+    5. Create embeddings for categorical features
+    6. Generate labeled dataset for training
+    """
     sentences_original = load_reddit.get_posts_with_authors()
     # sentences_joan = load_json.load_json()
     labeled_data, labeled_pairs = load_reddit.load_labels()
@@ -449,8 +554,19 @@ def main():
     labeled_dataset["gender"] = feature_matrix.detach().numpy().tolist()
 
 
-    # Create embeddings of identities, hobbies, haves, works, attitudes, and relationships
     def feature_embedding(data):
+        """Create embeddings for categorical features.
+        
+        Parameters
+        ----------
+        data : pandas.Series
+            Series containing lists of categorical values.
+        
+        Returns
+        -------
+        list
+            List of embedding vectors (one per row in the input).
+        """
         copy = data.copy()
         # check for nan
         for i in range(len(copy)):
@@ -485,8 +601,9 @@ def main():
     # labeled_dataset["attitude"] = feature_embedding(labeled_dataset["attitude"])
     # labeled_dataset["relationship"] = feature_embedding(labeled_dataset["relationship"])
 
-    # Save the labeled data to a csv file
+    # Save the labeled data to a JSON file
     labeled_dataset.to_json("data/regex/labeled_data_short.json", orient="records", indent=4)
+
 
 if __name__ == "__main__":
     main()

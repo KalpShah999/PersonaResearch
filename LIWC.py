@@ -1,10 +1,16 @@
-# Use the LIWC dictionary to count the number of words in a text that fall into a given category. 
-# Then group into categories and plot the results.
-# Categories:
-# - Demographic (identity)
-# - Expierences (Work/occupation, Education, Hobbies, Habits)
-# - Attitude/opinion about something (values, beliefs, mental state)
-# - Relations to others(social, family, friends)
+"""LIWC (Linguistic Inquiry and Word Count) analysis for text categorization.
+
+This module uses the LIWC dictionary to categorize words in text into four main
+groups: demographics, experiences, attitudes, and relations. It performs word
+counting, clustering, and visualization of the categorized content.
+
+Categories
+----------
+- Demographic: identity information (male, female, pronouns, netspeak)
+- Experiences: work, education, hobbies, habits (percept, bio, work, home, money, religion, death)
+- Attitude/Opinion: values, beliefs, mental state (achievement, power, reward, risk, affect)
+- Relations: social connections (family, friend, affiliation)
+"""
 
 import re
 import matplotlib.pyplot as plt
@@ -24,6 +30,18 @@ relations_categories = ['family', 'friend', 'affiliation']
 
 
 def load_liwc_dict(filename):
+    """Load LIWC dictionary from a file.
+    
+    Parameters
+    ----------
+    filename : str
+        Path to the LIWC dictionary file. Format: "word, category" per line.
+    
+    Returns
+    -------
+    defaultdict
+        Dictionary mapping words to their LIWC categories.
+    """
     liwc_dict = defaultdict(lambda: [])
     with open(filename, 'r', encoding='utf-8') as f:
         for line in f:
@@ -43,9 +61,20 @@ def load_liwc_dict(filename):
     return liwc_dict
 
 def count_categories(text, liwc_dict):
-    # Count the number of words in a text that fall into a given category
-    # Return a dictionary with the counts for each category
-
+    """Count the number of words in text that fall into LIWC categories.
+    
+    Parameters
+    ----------
+    text : str
+        The text to analyze.
+    liwc_dict : dict
+        Dictionary mapping words to LIWC categories.
+    
+    Returns
+    -------
+    dict
+        Dictionary with counts for each LIWC category found in the text.
+    """
     words  = text.lower().split()
     liwc = []
     print_this = 0
@@ -136,13 +165,24 @@ def count_categories(text, liwc_dict):
     return counts
 
 def group_categories(counts):
-    # group the categories into broader categories
-    # Return a dictionary with the counts for each group
-    # - Demographic (identity)
-    # - Expierences (Work/occupation, Education, Hobbies, Habits)
-    # - Attitude/opinion about something (values, beliefs, mental state)
-    # - Relations to others(social, family, friends)
-
+    """Group LIWC categories into broader conceptual categories.
+    
+    Groups the detailed LIWC categories into four main groups:
+    - Demographic (identity)
+    - Experiences (work/occupation, education, hobbies, habits)
+    - Attitude/opinion (values, beliefs, mental state)
+    - Relations (social, family, friends)
+    
+    Parameters
+    ----------
+    counts : dict
+        Dictionary with counts for each specific LIWC category.
+    
+    Returns
+    -------
+    dict
+        Dictionary with counts for the four main category groups.
+    """
     group_counts = {'demographic': 0, 'experiences': 0, 'attitude': 0, 'relations': 0}
 
     for category, count in counts.items():
@@ -159,7 +199,13 @@ def group_categories(counts):
     return group_counts
 
 def graph_categories(group_counts):
-    # Graph the counts for each group
+    """Create a bar chart visualization of category counts.
+    
+    Parameters
+    ----------
+    group_counts : dict
+        Dictionary with counts for each category group.
+    """
     labels = list(group_counts.keys())
     values = list(group_counts.values())
 
@@ -171,6 +217,20 @@ def graph_categories(group_counts):
     plt.show()
 
 def cluster_texts(data, num_clusters=3):
+    """Cluster texts using K-Means based on their LIWC category features.
+    
+    Parameters
+    ----------
+    data : list
+        List of feature vectors (LIWC category counts) for each text.
+    num_clusters : int, optional
+        Number of clusters to create (default is 3).
+    
+    Returns
+    -------
+    numpy.ndarray
+        Array of cluster labels for each text.
+    """
     X = np.array(data)  # Convert list of feature vectors into a NumPy array
 
     # Standardize features for better clustering
@@ -185,6 +245,7 @@ def cluster_texts(data, num_clusters=3):
 
 
 def main():
+    """Main function to perform LIWC analysis on Reddit posts."""
     liwc_dict = load_liwc_dict('data\LIWC.2015.all')
     posts = load_reddit.load_reddit()
 

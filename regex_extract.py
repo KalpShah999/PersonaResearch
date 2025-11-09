@@ -6,6 +6,7 @@ from collections import Counter
 import pandas as pd
 import torch
 import torch.nn as nn
+import os
 
 # Demographic patterns
 identity_pattern = re.compile(r"\b(I am|I'm|Im)\s*(a|an)?\s*(.+?)(?=[,.!?]|$)", re.IGNORECASE)
@@ -111,6 +112,8 @@ relationship_pattern = re.compile(
 )
 
 def write_to_file(data, filename):
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    
     with open(filename, "w", encoding='utf-8') as f:
         for item in data:
             f.write(str(item) + "\n")
@@ -271,15 +274,16 @@ def main():
     attitudes_authors = Counter(get_author_dist(attitudesList).values())
     relationships_authors = Counter(get_author_dist(relationshipsList).values())
 
-    # graph
-    graph_dist(identity_authors, "Distribution of Identities per Author", "Number of Phrases", "Number of Authors", "graphs/regex_dist/identity_authors.png")
-    graph_dist(ages_authors, "Distribution of Ages per Author", "Number of Phrases", "Number of Authors", "graphs/regex_dist/ages_authors.png")
-    graph_dist(gender_authors, "Distribution of Genders per Author", "Number of Phrases", "Number of Authors", "graphs/regex_dist/genders_authors.png")
-    graph_dist(hobbys_authors, "Distribution of hobbys per Author", "Number of Phrases", "Number of Authors", "graphs/regex_dist/hobbys_authors.png")
-    graph_dist(haves_authors, "Distribution of Haves per Author", "Number of Phrases", "Number of Authors", "graphs/regex_dist/haves_authors.png")
-    graph_dist(works_authors, "Distribution of Works per Author", "Number of Phrases", "Number of Authors", "graphs/regex_dist/works_authors.png")
-    graph_dist(attitudes_authors, "Distribution of Attitudes per Author", "Number of Phrases", "Number of Authors", "graphs/regex_dist/attitudes_authors.png")
-    graph_dist(relationships_authors, "Distribution of Relationships per Author", "Number of Phrases", "Number of Authors", "graphs/regex_dist/relationships_authors.png")
+    # [KalpShah999] I'm not sure what these graphs are for or where they're supposed to come from
+    # # graph
+    # graph_dist(identity_authors, "Distribution of Identities per Author", "Number of Phrases", "Number of Authors", "graphs/regex_dist/identity_authors.png")
+    # graph_dist(ages_authors, "Distribution of Ages per Author", "Number of Phrases", "Number of Authors", "graphs/regex_dist/ages_authors.png")
+    # graph_dist(gender_authors, "Distribution of Genders per Author", "Number of Phrases", "Number of Authors", "graphs/regex_dist/genders_authors.png")
+    # graph_dist(hobbys_authors, "Distribution of hobbys per Author", "Number of Phrases", "Number of Authors", "graphs/regex_dist/hobbys_authors.png")
+    # graph_dist(haves_authors, "Distribution of Haves per Author", "Number of Phrases", "Number of Authors", "graphs/regex_dist/haves_authors.png")
+    # graph_dist(works_authors, "Distribution of Works per Author", "Number of Phrases", "Number of Authors", "graphs/regex_dist/works_authors.png")
+    # graph_dist(attitudes_authors, "Distribution of Attitudes per Author", "Number of Phrases", "Number of Authors", "graphs/regex_dist/attitudes_authors.png")
+    # graph_dist(relationships_authors, "Distribution of Relationships per Author", "Number of Phrases", "Number of Authors", "graphs/regex_dist/relationships_authors.png")
 
     lists = [identityList, agesList, genderList, hobbysList, havesList, worksList, attitudesList, relationshipsList]
     names = ["identity", "ages", "genders", "hobbys", "haves", "works", "attitudes", "relationships"]
@@ -314,14 +318,14 @@ def main():
 
     # write each list to a file 
     print("writing to files")
-    write_to_file(identityList, "data/identities.txt")
-    write_to_file(agesList, "data/ages.txt")
-    write_to_file(genderList, "data/gender.txt")
-    write_to_file(hobbysList, "data/hobbys.txt")
-    write_to_file(havesList, "data/haves.txt")
-    write_to_file(worksList, "data/works.txt")
-    write_to_file(attitudesList, "data/attitudes.txt")
-    write_to_file(relationshipsList, "data/relationships.txt")
+    write_to_file(identityList, "data/regex/identities.txt")
+    write_to_file(agesList, "data/regex/ages.txt")
+    write_to_file(genderList, "data/regex/gender.txt")
+    write_to_file(hobbysList, "data/regex/hobbys.txt")
+    write_to_file(havesList, "data/regex/haves.txt")
+    write_to_file(worksList, "data/regex/works.txt")
+    write_to_file(attitudesList, "data/regex/attitudes.txt")
+    write_to_file(relationshipsList, "data/regex/relationships.txt")
     
     print("files written")
 
@@ -407,7 +411,7 @@ def main():
     merged['relationship'] = merged['relationship'].apply(lambda x: [] if isinstance(x, list) and not x else x if isinstance(x, list) else [] )
 
     # Save the data to a csv file
-    merged.to_csv("data/full_author_data.csv")
+    merged.to_csv("data/regex/full_author_data.csv")
 
     labeled_dataset = pd.merge(labeled_data, merged, on="author_fullname", how="left")
 
@@ -482,11 +486,7 @@ def main():
     # labeled_dataset["relationship"] = feature_embedding(labeled_dataset["relationship"])
 
     # Save the labeled data to a csv file
-    labeled_dataset.to_json("data/labeled_data_short.json", orient="records", indent=4)
+    labeled_dataset.to_json("data/regex/labeled_data_short.json", orient="records", indent=4)
 
-    
-
-
-
-main()
-
+if __name__ == "__main__":
+    main()

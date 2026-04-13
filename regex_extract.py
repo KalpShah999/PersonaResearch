@@ -423,14 +423,14 @@ def main():
 
     # write each list to a file 
     print("writing to files")
-    write_to_file(identityList, "data/regex/identities.txt")
-    write_to_file(agesList, "data/regex/ages.txt")
-    write_to_file(genderList, "data/regex/gender.txt")
-    write_to_file(hobbysList, "data/regex/hobbys.txt")
-    write_to_file(havesList, "data/regex/haves.txt")
-    write_to_file(worksList, "data/regex/works.txt")
-    write_to_file(attitudesList, "data/regex/attitudes.txt")
-    write_to_file(relationshipsList, "data/regex/relationships.txt")
+    write_to_file(identityList, "data/regex_small/identities.txt")
+    write_to_file(agesList, "data/regex_small/ages.txt")
+    write_to_file(genderList, "data/regex_small/gender.txt")
+    write_to_file(hobbysList, "data/regex_small/hobbys.txt")
+    write_to_file(havesList, "data/regex_small/haves.txt")
+    write_to_file(worksList, "data/regex_small/works.txt")
+    write_to_file(attitudesList, "data/regex_small/attitudes.txt")
+    write_to_file(relationshipsList, "data/regex_small/relationships.txt")
     
     print("files written")
 
@@ -516,7 +516,7 @@ def main():
     merged['relationship'] = merged['relationship'].apply(lambda x: [] if isinstance(x, list) and not x else x if isinstance(x, list) else [] )
 
     # Save the data to a csv file
-    merged.to_csv("data/regex/full_author_data.csv")
+    merged.to_csv("data/regex_small/full_author_data.csv")
 
     labeled_dataset = pd.merge(labeled_data, merged, on="author_fullname", how="left")
 
@@ -602,7 +602,7 @@ def main():
     # labeled_dataset["relationship"] = feature_embedding(labeled_dataset["relationship"])
 
     # Save the labeled data to a JSON file
-    labeled_dataset.to_json("data/regex/labeled_data_short.json", orient="records", indent=4)
+    labeled_dataset.to_json("data/regex_small/labeled_data_short.json", orient="records", indent=4)
 
 
 if __name__ == "__main__":
